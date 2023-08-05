@@ -15,6 +15,9 @@
         $phone = $_POST["phone"];
         $role_id = $_POST["role"];
         $status = $_POST["status"];
+        // Cách để lấy thông tin của ảnh được đẩy lên từ form
+        $hinh_anh = $_FILES['image'];
+        var_dump($hinh_anh);
 
         // Kiểm tra dữ liệu
         // Kiểm tra dữ liệu để trống
@@ -36,11 +39,25 @@
         } else if (!preg_match($regex_phone, $phone)) { // Sử dụng validate với regex
             $error["phone"] = "Số điện thoại không hợp lệ";
         }
-    }
 
-    // Nếu không còn lỗi thì thêm dữ liệu vào CSDL
-    if (!$error) {
-        $sql_add = "";
+        if (isset($hinh_anh)) {
+            // Thư mục sẽ lưu trữ ảnh
+            $target_dir = "img/";
+            // Lấy tên của ảnh
+            $image = $hinh_anh["name"];
+            // Tạo đường dẫn đầy đủ tới ảnh
+            $target_file = $target_dir . $image;
+            // Tạo ảnh
+            move_uploaded_file($hinh_anh["tmp_name"], $target_file);
+        }
+
+        // Nếu không còn lỗi thì thêm dữ liệu vào CSDL
+        if (!$error) {
+            $sql_add = "INSERT INTO users VALUES (null, '$name', '$email', '$phone', '$image', '$role_id', '$status')";
+            $connect->query($sql_add);
+            // Sau khi thêm sẽ quay trở lại trang index
+            header('Location: index.php');
+        }
     }
 ?>
 <!DOCTYPE html>
@@ -52,7 +69,8 @@
 </head>
 <body>
     <h2>Thêm người dùng</h2>
-    <form action="" method="POST">
+    <!-- enctype="multipart/form-data" Bắt buộc phải có để thực hiện post ảnh -->
+    <form action="" method="POST" enctype="multipart/form-data">
         <!-- ID ko cần nhập mà mặc định sẽ tự tăng khi thêm dữ liệu -->
         <label for="">Name</label>
         <input type="text" name="name">
@@ -65,6 +83,9 @@
         <label for="">Phone</label>
         <input type="text" name="phone">
         <span style="color: red;"><?php echo isset($error["phone"]) ? $error["phone"] : '' ?></span>
+        <br>
+        <label for="">Image</label>
+        <input type="file" name="image" accept="image/*">
         <br>
         <label for="">Role</label>
         <select name="role">
