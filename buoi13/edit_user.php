@@ -41,19 +41,19 @@ if (isset($_POST["btn-submit"])) {
     $role_id = $_POST["role"];
     $status = $_POST["status"];
     // Cách để lấy thông tin của ảnh được đẩy lên từ form
-    $hinh_anh = $_FILES['image'];
+    $image = $_FILES["image"]["name"];
 
     if (!$error) {
-        // Nếu không có lỗi thì thực hiện việc upload ảnh
-        if (isset($hinh_anh)) {
-            // Thư mục sẽ lưu trữ ảnh
-            $target_dir = "img/";
-            // Lấy tên của ảnh
-            $image = $hinh_anh["name"];
-            // Tạo đường dẫn đầy đủ tới ảnh
-            $target_file = $target_dir . $image;
-            // Tạo ảnh
-            move_uploaded_file($hinh_anh["tmp_name"], $target_file);
+        // Xử lý hình ảnh
+        if (!empty($image)) {
+            // Thư mục bạn sẽ lưu file upload
+            $target_dir    = "img/";
+            // Tạo đường dẫn đầy đủ của tệp ảnh trên máy chủ
+            $target_file   = $target_dir . $image;
+            // Di chuyển tệp ảnh từ thư mục tạm thời (tmp_name) đến thư mục đích (target_file)
+            move_uploaded_file($_FILES["image"]["tmp_name"], $target_file);
+        } else {
+            $image = $user['image']; // Nếu không có hình mới, giữ nguyên hình cũ
         }
 
         // Xử lý sửa dữ liệu
